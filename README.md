@@ -87,7 +87,7 @@ Semantic search embeddings always run locally (`fastembed`, `BAAI/bge-small-en-v
 
 ```bash
 cd backend && uv run pytest            # 95 tests: unit, API, pipeline, security, real-Chromium integration
-cd frontend && npx eslint src && npx tsc --noEmit && npm run build
+cd frontend && npx eslint src && npm run build   # build includes the TypeScript check
 ```
 
 Tests use a separate `cairn_test` database (`TEST_DATABASE_URL`), local HTML fixtures and a deterministic
