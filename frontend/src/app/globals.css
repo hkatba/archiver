@@ -1,0 +1,154 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-instrument);
+  --font-serif: var(--font-newsreader);
+  --font-heading: var(--font-instrument);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-lichen: var(--lichen);
+  --color-warn: var(--warn);
+  --color-ok: var(--ok);
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+  --radius-2xl: 18px;
+}
+
+/* Granite paper, slate ink, lichen accent */
+:root {
+  --background: #f2f3f1;
+  --foreground: #1e2624;
+  --card: #ffffff;
+  --card-foreground: #1e2624;
+  --popover: #ffffff;
+  --popover-foreground: #1e2624;
+  --primary: #3f7a5c;
+  --primary-foreground: #f6faf7;
+  --secondary: #e6e9e6;
+  --secondary-foreground: #1e2624;
+  --muted: #e9ece9;
+  --muted-foreground: #5f6b67;
+  --accent: #e3e8e4;
+  --accent-foreground: #1e2624;
+  --destructive: #b3412f;
+  --border: #dadfdc;
+  --input: #cfd5d1;
+  --ring: #3f7a5c;
+  --sidebar: #eceeeb;
+  --sidebar-border: #dadfdc;
+  --lichen: #3f7a5c;
+  --warn: #a8741a;
+  --ok: #3f7a5c;
+  --radius: 10px;
+}
+
+.dark {
+  --background: #181d1b;
+  --foreground: #e3e8e5;
+  --card: #1f2522;
+  --card-foreground: #e3e8e5;
+  --popover: #232a27;
+  --popover-foreground: #e3e8e5;
+  --primary: #79b593;
+  --primary-foreground: #102119;
+  --secondary: #2a322e;
+  --secondary-foreground: #e3e8e5;
+  --muted: #262d2a;
+  --muted-foreground: #98a49f;
+  --accent: #2c3531;
+  --accent-foreground: #e3e8e5;
+  --destructive: #e07a66;
+  --border: #303935;
+  --input: #3a4440;
+  --ring: #79b593;
+  --sidebar: #1b211e;
+  --sidebar-border: #2b3430;
+  --lichen: #79b593;
+  --warn: #d9a441;
+  --ok: #79b593;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "ss01", "cv11";
+  }
+  html {
+    @apply font-sans;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+}
+
+/* Condensed display numerals/headings: the type itself carries the hierarchy */
+.display {
+  font-variation-settings: "wdth" 78;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.reader {
+  font-family: var(--font-newsreader), Georgia, serif;
+  font-size: 1.075rem;
+  line-height: 1.7;
+  max-width: 68ch;
+}
+.reader h1, .reader h2, .reader h3, .reader h4 {
+  font-family: var(--font-instrument), system-ui, sans-serif;
+  font-weight: 600;
+  line-height: 1.25;
+  margin: 1.6em 0 0.5em;
+}
+.reader h1 { font-size: 1.5rem; }
+.reader h2 { font-size: 1.25rem; }
+.reader h3 { font-size: 1.08rem; }
+.reader p, .reader ul, .reader ol, .reader pre, .reader table, .reader blockquote { margin: 0 0 1em; }
+.reader ul { list-style: disc; padding-left: 1.4em; }
+.reader ol { list-style: decimal; padding-left: 1.4em; }
+.reader a { color: var(--lichen); text-decoration: underline; text-underline-offset: 2px; }
+.reader blockquote { border-left: 3px solid var(--border); padding-left: 1em; color: var(--muted-foreground); }
+.reader code { font-size: 0.88em; background: var(--muted); padding: 0.1em 0.3em; border-radius: 4px; }
+.reader pre { background: var(--muted); padding: 0.9em 1em; border-radius: 6px; overflow-x: auto; font-size: 0.85rem; line-height: 1.5; }
+.reader pre code { background: none; padding: 0; }
+.reader-compact { font-family: var(--font-instrument), system-ui, sans-serif; font-size: 0.875rem; line-height: 1.6; }
+.reader-compact p, .reader-compact ul, .reader-compact ol { margin-bottom: 0.6em; }
+.reader table { border-collapse: collapse; font-size: 0.92rem; display: block; overflow-x: auto; }
+.reader th, .reader td { border: 1px solid var(--border); padding: 0.35em 0.6em; text-align: left; }
+
+/* Organic stone silhouettes for the cairn chart and the logo */
+.stone { border-radius: 46% 54% 42% 58% / 62% 58% 42% 38%; }
+.stone:nth-child(even) { border-radius: 55% 45% 52% 48% / 58% 62% 38% 42%; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}

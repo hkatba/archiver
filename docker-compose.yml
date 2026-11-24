@@ -1,0 +1,67 @@
+name: cairn
+
+x-backend: &backend
+  build: ./backend
+  env_file: .env
+  environment:
+    DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-cairn}:${POSTGRES_PASSWORD:-cairn}@db:5432/${POSTGRES_DB:-cairn}
+    STORAGE_DIR: /data/storage
+    FASTEMBED_CACHE_DIR: /data/models
+    # Ollama running on the host machine
+    OLLAMA_BASE_URL: ${OLLAMA_BASE_URL_DOCKER:-http://host.docker.internal:11434/v1}
+  volumes:
+    - storage:/data/storage
+    - models:/data/models
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
+  depends_on:
+    db:
+      condition: service_healthy
+  restart: unless-stopped
+
+services:
+  db:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-cairn}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cairn}
+      POSTGRES_DB: ${POSTGRES_DB:-cairn}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  api:
+    <<: *backend
+    command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --proxy-headers"
+    ports:
+      - "127.0.0.1:8000:8000"
+    profiles: ["app"]
+
+  worker:
+    <<: *backend
+    command: python -m app.worker
+    shm_size: 1gb
+    profiles: ["app"]
+
+  web:
+    build: ./frontend
+    environment:
+      API_URL: http://api:8000
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      - api
+    restart: unless-stopped
+    profiles: ["app"]
+
+volumes:
+  pgdata:
+  storage:
+  models:

@@ -1,0 +1,43 @@
+[project]
+name = "cairn-backend"
+version = "0.1.0"
+description = "Cairn: AI-powered link library — API and ingestion worker"
+requires-python = ">=3.12"
+dependencies = [
+    "alembic>=1.20.1",
+    "anthropic>=2.10.0",
+    "beautifulsoup4>=4.15.0",
+    "fastapi>=0.164.0",
+    "fastembed>=0.9.1",
+    "httpx>=0.28.1",
+    "openai>=3.55.1",
+    "pgvector>=0.5.1",
+    "pillow>=13.0.0",
+    "playwright>=1.65.2",
+    "psycopg[binary]>=3.3.9",
+    "pydantic-settings>=2.16.3",
+    "sqlalchemy>=2.1.9",
+    "trafilatura>=2.3.1",
+    "uvicorn[standard]>=0.54.0",
+]
+
+[tool.uv]
+package = false
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+    "pytest-asyncio>=1.5.0",
+    "ruff>=0.17.5",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "session"
+asyncio_default_test_loop_scope = "session"
+markers = ["browser: needs a Playwright Chromium install"]
+
+[tool.ruff]
+line-length = 110

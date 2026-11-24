@@ -1,0 +1,19 @@
+<!doctype html>
+<html><head><title>Quickstart | FetchKit Docs</title>
+<meta name="description" content="Install FetchKit and send your first API request.">
+<meta name="generator" content="Docusaurus v3"></head>
+<body><article>
+<h1>Quickstart</h1>
+<p>FetchKit is a tiny HTTP client for testing and debugging REST APIs from the command line and from scripts. This guide shows how to install it and make a request.</p>
+<h2>Install</h2>
+<pre><code class="language-bash">pip install fetchkit
+fetchkit --version</code></pre>
+<h2>Send a request</h2>
+<div class="highlight-python"><pre>import fetchkit
+
+client = fetchkit.Client(base_url="https://api.example.com")
+response = client.get("/users", params={"limit": 10})
+print(response.json())</pre></div>
+<p>Responses are parsed automatically and errors raise descriptive exceptions, which makes debugging failing API calls straightforward.</p>
+<pre>short</pre>
+</article></body></html>
