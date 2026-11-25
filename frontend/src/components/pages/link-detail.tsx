@@ -22,7 +22,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
 import { toast } from "sonner";
-import { ButtonLink, CategoryMark, Favicon, FavoriteStar, StatusPill, Verified } from "@/components/bits";
+import { ButtonLink, CategoryMark, Favicon, FavoriteStar, SectionHead, StatusPill, Verified, vars } from "@/components/bits";
 import { LinkRow, useLinkActions } from "@/components/link-views";
 import { Markdown } from "@/components/markdown";
 import { PageSkeleton } from "@/components/page-skeleton";
@@ -55,11 +55,8 @@ const STAGES: LinkStatus[] = ["QUEUED", "PROCESSING", "ENRICHING", "INDEXING", "
 
 function Section({ title, children, aside }: { title: string; children: React.ReactNode; aside?: React.ReactNode }) {
   return (
-    <section className="border-t pt-5">
-      <div className="mb-2 flex items-baseline justify-between gap-3">
-        <h2 className="font-medium">{title}</h2>
-        {aside}
-      </div>
+    <section className="mt-6">
+      <SectionHead title={title} aside={aside} className="mb-4" />
       {children}
     </section>
   );
@@ -67,7 +64,7 @@ function Section({ title, children, aside }: { title: string; children: React.Re
 
 function Fact({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="grid grid-cols-[110px_minmax(0,1fr)] gap-3 py-1.5 text-sm">
+    <div className="grid grid-cols-[104px_minmax(0,1fr)] gap-3 py-2.5 text-sm">
       <dt className="text-muted-foreground">{label}</dt>
       <dd className="min-w-0">{children}</dd>
     </div>
@@ -89,7 +86,7 @@ function Progress({ link }: { link: LinkDetail }) {
   if (link.status === "COMPLETED") return null;
   const idx = STAGES.indexOf(link.status === "PENDING" ? "QUEUED" : link.status);
   return (
-    <div className={cn("mb-6 rounded-lg border p-4",
+    <div className={cn("enter mb-8 rounded-lg border bg-card/70 p-4",
       ["FAILED", "BLOCKED"].includes(link.status) && "border-destructive/40 bg-destructive/5",
       link.status === "NEEDS_REVIEW" && "border-warn/40 bg-warn/5")} role="status">
       {active ? (
@@ -245,10 +242,10 @@ function Notes({ link }: { link: LinkDetail }) {
 function SnippetBlock({ code, language, context }: { code: string; language: string | null; context: string | null }) {
   const [copied, setCopied] = useState(false);
   return (
-    <figure className="overflow-hidden rounded-md border">
-      <figcaption className="flex items-center justify-between gap-2 border-b bg-muted/60 px-3 py-1.5 text-xs text-muted-foreground">
+    <figure className="overflow-hidden rounded-lg border bg-card">
+      <figcaption className="flex items-center justify-between gap-2 border-b px-3.5 py-2 text-xs text-muted-foreground">
         <span className="truncate">{[language, context].filter(Boolean).join(", ") || "Code"}</span>
-        <button type="button" className="inline-flex items-center gap-1 hover:text-foreground" onClick={async () => {
+        <button type="button" aria-live="polite" className="press -my-1 inline-flex h-7 items-center gap-1 rounded-md px-2 hover:bg-accent hover:text-foreground" onClick={async () => {
           await navigator.clipboard.writeText(code);
           setCopied(true);
           setTimeout(() => setCopied(false), 1500);
@@ -256,7 +253,7 @@ function SnippetBlock({ code, language, context }: { code: string; language: str
           {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />} {copied ? "Copied" : "Copy"}
         </button>
       </figcaption>
-      <pre className="max-h-80 overflow-auto bg-card p-3 text-[13px] leading-relaxed"><code>{code}</code></pre>
+      <pre className="max-h-80 overflow-auto p-3.5 text-[13px] leading-relaxed"><code>{code}</code></pre>
     </figure>
   );
 }
@@ -269,6 +266,7 @@ export function LinkDetailPage() {
   const { refresh, toggleFavorite } = useLinkActions();
   const [editing, setEditing] = useState(false);
   const [showContent, setShowContent] = useState(false);
+  const [shotBroken, setShotBroken] = useState(false);
   const { data: link, error } = useSWR<LinkDetail>(`/api/links/${id}`, {
     refreshInterval: (d) => (d && ACTIVE.includes(d.status) ? 2000 : 0),
   });
@@ -325,24 +323,35 @@ export function LinkDetailPage() {
   const manual = (collections ?? []).filter((c) => !c.is_smart);
 
   return (
-    <article>
+    <article className="title-scope">
+      <div className="title-bar sticky top-14 z-20 -mx-5 -mb-14 hidden h-14 items-center gap-3 border-b bg-background/85 px-5 backdrop-blur-md sm:-mx-10 sm:px-10 md:top-0 lg:-mx-14 lg:px-14">
+        <Favicon link={link} size={20} />
+        <p className="display min-w-0 flex-1 truncate text-[1.45rem]">{link.name || link.domain}</p>
+        <Button size="sm" render={<a href={link.url} target="_blank" rel="noopener noreferrer" />} nativeButton={false}>
+          <ExternalLink /> Open site
+        </Button>
+      </div>
       <Progress link={link} />
       {duplicateOf && (
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-card p-4 text-sm">
+        <div className="enter mb-8 flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-card/70 p-4 text-sm">
           <span>This looks like the same page as <Link className="font-medium underline" href={`/links/${duplicateOf.id}`}>{duplicateOf.name}</Link>.</span>
           <Button size="sm" variant="outline" onClick={merge}>Merge into it</Button>
         </div>
       )}
 
-      <header className="mb-8 flex flex-wrap items-start gap-4">
-        <Favicon link={link} size={40} />
-        <div className="min-w-0 flex-1">
-          <h1 className="display text-4xl break-words sm:text-5xl">{link.name || link.domain}</h1>
-          <a href={link.url} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex max-w-full items-center gap-1 text-sm text-muted-foreground hover:text-foreground hover:underline">
-            <span className="truncate">{hostPath(link.final_url || link.url)}</span>
-          </a>
+      <header className="mb-12 sm:mb-16">
+        <div className="enter-fade mb-6 flex items-center gap-3 text-sm text-muted-foreground">
+          <Favicon link={link} size={28} />
+          <CategoryMark category={link.category} subcategory={link.subcategory} className="text-sm" />
         </div>
-        <div className="flex flex-wrap items-center gap-1.5">
+        <h1 className="title-xl mask-line title-track max-w-5xl break-words"><span className="max-w-full">{link.name || link.domain}</span></h1>
+        <a href={link.url} target="_blank" rel="noopener noreferrer"
+          className="group enter mt-4 inline-flex max-w-full items-center gap-1.5 font-mono text-[13px] text-muted-foreground transition-colors hover:text-foreground"
+          style={vars({ "--d": "140ms" })}>
+          <span className="ink-link truncate">{hostPath(link.final_url || link.url)}</span>
+          <ExternalLink className="size-3.5 shrink-0" aria-hidden="true" />
+        </a>
+        <div className="enter mt-7 flex flex-wrap items-center gap-1.5" style={vars({ "--d": "220ms" })}>
           <Button render={<a href={link.url} target="_blank" rel="noopener noreferrer" />} nativeButton={false}>
             <ExternalLink /> Open site
           </Button>
@@ -351,7 +360,7 @@ export function LinkDetailPage() {
             <Copy />
           </Button>
           <Button variant="outline" size="icon" aria-label="Edit details" title="Edit details" onClick={() => setEditing(true)}><Pencil /></Button>
-          <FavoriteStar on={link.is_favorite} onToggle={() => toggleFavorite(link)} className="p-2" />
+          <FavoriteStar on={link.is_favorite} onToggle={() => toggleFavorite(link)} className="size-9" />
           <DropdownMenu>
             <DropdownMenuTrigger render={<Button variant="outline" size="icon" aria-label="Add to collection" title="Add to collection" />}>
               <FolderClosed />
@@ -381,15 +390,16 @@ export function LinkDetailPage() {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
+        <div className="rule mt-10" />
       </header>
 
-      <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_340px]">
+      <div className="grid gap-14 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-20">
         <div className="flex min-w-0 flex-col gap-6">
           {link.tldr || link.description ? (
             <div>
-              {link.tldr && <p className="max-w-[68ch] font-serif text-xl leading-relaxed">{link.tldr}</p>}
+              {link.tldr && <p className="enter max-w-[58ch] font-serif text-[clamp(1.3rem,1.1rem+0.6vw,1.6rem)] leading-[1.45]" style={vars({ "--d": "260ms" })}>{link.tldr}</p>}
               {link.description && link.description !== link.tldr && (
-                <p className="mt-3 max-w-[68ch] text-muted-foreground">{link.description}</p>
+                <p className="enter mt-5 max-w-[66ch] text-muted-foreground" style={vars({ "--d": "320ms" })}>{link.description}</p>
               )}
               {ai.source === "extractive" && (
                 <p className="mt-3 text-xs text-muted-foreground">Taken from the page&apos;s own description. Set up an AI provider in Settings for a full analysis.</p>
@@ -401,19 +411,19 @@ export function LinkDetailPage() {
 
           {ai.problems_solved && ai.problems_solved.length > 0 && (
             <Section title="Problems it solves">
-              <ul className="ml-5 list-disc space-y-1">{ai.problems_solved.map((p) => <li key={p}>{p}</li>)}</ul>
+              <ul className="ml-5 list-disc space-y-1.5 marker:text-muted-foreground">{ai.problems_solved.map((p) => <li key={p}>{p}</li>)}</ul>
             </Section>
           )}
           {ai.target_audience && ai.target_audience.length > 0 && (
             <Section title="Who it's for">
-              <ul className="flex flex-wrap gap-1.5">{ai.target_audience.map((a) => <li key={a} className="rounded-md bg-muted px-2 py-0.5 text-sm">{a}</li>)}</ul>
+              <ul className="flex flex-wrap gap-x-5 gap-y-1">{ai.target_audience.map((a) => <li key={a} className="font-serif text-lg italic">{a}</li>)}</ul>
             </Section>
           )}
           {ai.key_features && ai.key_features.length > 0 && (
             <Section title="Key features" aside={<span className="text-xs text-muted-foreground">Checked against the page text</span>}>
               <ul className="divide-y">
                 {ai.key_features.map((f) => (
-                  <li key={f.name} className="flex items-baseline justify-between gap-4 py-1.5">
+                  <li key={f.name} className="flex items-baseline justify-between gap-4 py-2.5">
                     <span>{f.name}</span>
                     <Verified ok={!!f.verified} quote={f.evidence} />
                   </li>
@@ -423,11 +433,11 @@ export function LinkDetailPage() {
           )}
           {ai.usage && Object.values(ai.usage).some(Boolean) && (
             <Section title="When to use it" aside={<span className="text-xs text-muted-foreground">AI interpretation</span>}>
-              <dl className="grid gap-3 text-sm sm:grid-cols-2">
+              <dl className="grid gap-x-8 gap-y-5 text-sm sm:grid-cols-2">
                 {([["use_for", "Useful for"], ["when_to_use", "Use it when"], ["who_should_use", "Best for"],
                   ["differentiators", "What sets it apart"], ["limitations", "Limitations"]] as const).map(([k, label]) =>
                   ai.usage?.[k] ? (
-                    <div key={k}><dt className="text-muted-foreground">{label}</dt><dd className="mt-0.5">{ai.usage[k]}</dd></div>
+                    <div key={k}><dt className="text-muted-foreground">{label}</dt><dd className="mt-1">{ai.usage[k]}</dd></div>
                   ) : null)}
               </dl>
             </Section>
@@ -449,9 +459,9 @@ export function LinkDetailPage() {
           {link.markdown && (
             <Section title="Archived copy of the page" aside={
               <span className="flex gap-3 text-sm">
-                <Link href={`/links/${link.id}/read`} className="text-muted-foreground hover:text-foreground hover:underline">Reader view</Link>
-                <button type="button" className="text-muted-foreground hover:text-foreground hover:underline" onClick={() => setShowContent((v) => !v)}>
-                  {showContent ? "Hide" : "Show"}
+                <Link href={`/links/${link.id}/read`} className="group text-muted-foreground transition-colors hover:text-foreground"><span className="ink-link">Reader view</span></Link>
+                <button type="button" aria-expanded={showContent} className="group text-muted-foreground transition-colors hover:text-foreground" onClick={() => setShowContent((v) => !v)}>
+                  <span className="ink-link">{showContent ? "Hide" : "Show"}</span>
                 </button>
               </span>}>
               {showContent ? <Markdown>{link.markdown}</Markdown> : (
@@ -463,16 +473,16 @@ export function LinkDetailPage() {
           )}
           {related && related.length > 0 && (
             <Section title="Related in your library">
-              <div className="overflow-hidden rounded-lg border bg-card">
+              <div className="border-b">
                 {related.map((r) => <LinkRow key={r.link.id} link={r.link} />)}
               </div>
             </Section>
           )}
           <Section title="Processing history">
-            <ol className="space-y-1 text-sm">
+            <ol className="space-y-1.5 text-sm">
               {link.logs.slice(0, 12).map((l, i) => (
-                <li key={i} className="flex gap-3">
-                  <span className="w-24 shrink-0 text-muted-foreground">{ago(l.created_at)}</span>
+                <li key={i} className="flex gap-4">
+                  <span className="w-24 shrink-0 text-muted-foreground tabular-nums">{ago(l.created_at)}</span>
                   <span className={cn(l.level === "error" && "text-destructive", l.level === "warning" && "text-warn")}>{l.message}</span>
                 </li>
               ))}
@@ -480,15 +490,16 @@ export function LinkDetailPage() {
           </Section>
         </div>
 
-        <aside className="flex flex-col gap-6">
-          {link.screenshot ? (
-            <a href={link.screenshot} target="_blank" rel="noopener noreferrer" className="block overflow-hidden rounded-lg border" title="Open full screenshot">
+        <aside className="flex flex-col gap-9">
+          {link.screenshot && !shotBroken ? (
+            <a href={link.screenshot} target="_blank" rel="noopener noreferrer" className="group enter frame block" title="Open full screenshot"
+              style={vars({ "--d": "200ms" })}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={link.thumbnail ?? link.screenshot} alt={`Screenshot of ${link.name ?? link.domain}`} className="w-full" />
+              <img src={link.thumbnail ?? link.screenshot} alt={`Screenshot of ${link.name ?? link.domain}`} className="w-full" onError={() => setShotBroken(true)} />
             </a>
           ) : null}
 
-          <dl className="divide-y">
+          <dl className="divide-y border-y">
             <Fact label="Category"><CategoryMark category={link.category} subcategory={link.subcategory} className="text-sm text-foreground" /></Fact>
             <Fact label="Pricing">
               {pricing?.verified ? (
@@ -530,11 +541,11 @@ export function LinkDetailPage() {
           </dl>
 
           <div>
-            <h2 className="mb-2 text-sm font-medium">Tags</h2>
+            <h2 className="display mb-3 text-2xl">Tags</h2>
             {link.tags.length ? (
-              <ul className="flex flex-wrap gap-1.5">
+              <ul className="flex flex-wrap gap-x-4 gap-y-1">
                 {link.tags.map((t) => (
-                  <li key={t}><Link href={`/links?tag=${encodeURIComponent(t)}`} className="rounded-md border px-2 py-0.5 text-sm hover:border-foreground/30">#{t}</Link></li>
+                  <li key={t}><Link href={`/links?tag=${encodeURIComponent(t)}`} className="group inline-flex py-0.5 text-[0.9375rem]"><span className="ink-link">#{t}</span></Link></li>
                 ))}
               </ul>
             ) : <p className="text-sm text-muted-foreground">No tags yet.</p>}
@@ -542,15 +553,15 @@ export function LinkDetailPage() {
 
           {link.collections.length > 0 && (
             <div>
-              <h2 className="mb-2 text-sm font-medium">In collections</h2>
-              <ul className="space-y-1 text-sm">
-                {link.collections.map((c) => <li key={c.id}><Link className="hover:underline" href={`/collections/${c.id}`}>{c.name}</Link></li>)}
+              <h2 className="display mb-3 text-2xl">In collections</h2>
+              <ul className="space-y-1 text-[0.9375rem]">
+                {link.collections.map((c) => <li key={c.id}><Link className="group" href={`/collections/${c.id}`}><span className="ink-link">{c.name}</span></Link></li>)}
               </ul>
             </div>
           )}
 
           <div>
-            <h2 className="mb-2 text-sm font-medium">Your notes</h2>
+            <h2 className="display mb-3 text-2xl">Your notes</h2>
             <Notes key={link.notes ?? ""} link={link} />
           </div>
           <StatusPill status={link.status} detail={link.status_detail} />

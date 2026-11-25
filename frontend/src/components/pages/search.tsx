@@ -1,15 +1,15 @@
 "use client";
 
-import { LoaderCircle, Search, SendHorizontal } from "lucide-react";
+import { ArrowRight, LoaderCircle, Search, SendHorizontal } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import useSWR from "swr";
-import { Empty, PageHeader } from "@/components/bits";
+import { Empty, PageHeader, vars } from "@/components/bits";
+import { Segmented } from "@/components/segmented";
 import { LinkRow } from "@/components/link-views";
 import { Markdown } from "@/components/markdown";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { api, ApiError } from "@/lib/api";
@@ -66,22 +66,22 @@ function Results() {
 
   return (
     <div>
-      <form onSubmit={(e) => { e.preventDefault(); update({ q: input.trim() || null }); }} className="relative">
-        <Search className="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
-        <Input ref={inputRef} value={input} onChange={(e) => setInput(e.target.value)} aria-label="Describe what you're looking for"
-          placeholder="Describe what you're looking for" className="h-14 rounded-lg pl-12 text-lg" />
+      <form role="search" onSubmit={(e) => { e.preventDefault(); update({ q: input.trim() || null }); }} className="group/search relative">
+        <Search className="pointer-events-none absolute top-1/2 left-0 size-5 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+        <input ref={inputRef} value={input} onChange={(e) => setInput(e.target.value)} aria-label="Describe what you're looking for"
+          placeholder="Describe what you're looking for"
+          className="h-16 w-full border-0 border-b border-foreground/25 bg-transparent pr-12 pl-9 font-serif text-[1.35rem] caret-lichen outline-none transition-colors duration-200 placeholder:text-muted-foreground/75 hover:border-foreground/50 focus:border-foreground focus-visible:outline-none sm:text-[1.6rem]" />
+        <span aria-hidden="true" className="pointer-events-none absolute bottom-0 left-0 h-px w-full origin-left scale-x-0 bg-lichen transition-transform duration-500 ease-(--ease-out) group-focus-within/search:scale-x-100" />
+        <button type="submit" aria-label="Search"
+          className="press absolute top-1/2 right-0 grid size-11 -translate-y-1/2 place-items-center rounded-md text-muted-foreground hover:text-foreground">
+          <ArrowRight className="size-5" />
+        </button>
       </form>
-      <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
-        <div className="flex rounded-md border p-0.5" role="group" aria-label="Search mode">
-          {([["hybrid", "By meaning"], ["keyword", "Exact words"]] as const).map(([m, label]) => (
-            <button key={m} type="button" aria-pressed={mode === m} onClick={() => update({ mode: m === "hybrid" ? null : m })}
-              className={cn("rounded px-2.5 py-1 text-muted-foreground hover:text-foreground", mode === m && "bg-accent text-foreground")}>
-              {label}
-            </button>
-          ))}
-        </div>
+      <div className="mt-4 flex flex-wrap items-center gap-2 text-sm">
+        <Segmented label="Search mode" value={mode} onChange={(m) => update({ mode: m === "hybrid" ? null : m })}
+          options={[["hybrid", "By meaning"], ["keyword", "Exact words"]]} />
         <select aria-label="Category" value={category} onChange={(e) => update({ category: e.target.value || null })}
-          className="h-8 rounded-md border bg-background px-2">
+          className="h-9 rounded-md border border-input bg-card/60 px-2.5 transition-colors hover:border-foreground/30">
           <option value="">All categories</option>
           {categories?.map((c) => <option key={c.name} value={c.name}>{c.name}</option>)}
         </select>
@@ -91,33 +91,38 @@ function Results() {
       </div>
 
       {!query && !category && !freeOnly ? (
-        <div className="mt-8">
-          <p className="mb-3 text-sm text-muted-foreground">Try asking for what you need, the way you&apos;d ask a colleague:</p>
-          <ul className="flex flex-wrap gap-2">
-            {EXAMPLES.map((ex) => (
-              <li key={ex}>
-                <button type="button" onClick={() => update({ q: ex })} className="rounded-md border bg-card px-3 py-1.5 text-sm hover:border-foreground/30">
-                  {ex}
+        <div className="mt-12">
+          <p className="mb-4 text-sm text-muted-foreground">Ask for what you need, the way you&apos;d ask a colleague:</p>
+          <ul className="flex flex-col">
+            {EXAMPLES.map((ex, i) => (
+              <li key={ex} className="enter border-t last:border-b" style={vars({ "--i": i, "--d": "120ms" })}>
+                <button type="button" onClick={() => update({ q: ex })}
+                  className="group flex w-full items-baseline justify-between gap-4 py-3 text-left font-serif text-lg italic text-foreground/85 transition-colors duration-200 hover:text-foreground">
+                  <span className="ink-link">{ex}</span>
+                  <ArrowRight className="size-4 shrink-0 -translate-x-1 self-center text-muted-foreground opacity-0 transition-[translate,opacity] duration-200 group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:opacity-100" aria-hidden="true" />
                 </button>
               </li>
             ))}
           </ul>
         </div>
       ) : isLoading && !data ? (
-        <div className="mt-6 flex flex-col gap-2">{Array.from({ length: 4 }, (_, i) => <Skeleton key={i} className="h-20" />)}</div>
+        <div className="mt-10 flex flex-col gap-3" aria-busy="true" aria-label="Searching">{Array.from({ length: 4 }, (_, i) => <Skeleton key={i} className="h-20" />)}</div>
       ) : error ? (
         <p className="mt-6 text-sm text-destructive">{(error as Error).message}</p>
       ) : data && data.results.length === 0 ? (
-        <div className="mt-6">
+        <div className="mt-10">
           <Empty title="Nothing in your library matches that">
             Try describing the task differently, or switch to {mode === "hybrid" ? "exact words" : "search by meaning"}.
           </Empty>
         </div>
       ) : data ? (
-        <div className="mt-6">
-          <p className="mb-2 text-sm text-muted-foreground">{data.results.length} result{data.results.length === 1 ? "" : "s"}, best match first</p>
-          <div className="overflow-hidden rounded-lg border bg-card">
-            {data.results.map((r) => <LinkRow key={r.link.id} link={r.link} reasons={r.reasons} />)}
+        <div className="mt-10">
+          <p className="mb-3 text-sm text-muted-foreground" aria-live="polite">
+            <span className="display mr-1 text-2xl text-foreground tabular-nums">{data.results.length}</span>
+            result{data.results.length === 1 ? "" : "s"}, best match first
+          </p>
+          <div className="border-y">
+            {data.results.map((r, i) => <LinkRow key={r.link.id} link={r.link} reasons={r.reasons} index={i} />)}
           </div>
         </div>
       ) : null}
@@ -133,7 +138,8 @@ function Assistant() {
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    // Only follow the conversation once it exists; on load this would drag the page down on phones
+    if (messages.length) endRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [messages]);
 
   async function ask(e?: React.FormEvent) {
@@ -158,12 +164,12 @@ function Assistant() {
 
   const configured = stats?.ai.configured;
   return (
-    <section aria-labelledby="ask-h" className="flex flex-col rounded-lg border bg-card">
-      <div className="border-b px-4 py-3">
-        <h2 id="ask-h" className="font-medium">Ask your library</h2>
-        <p className="text-sm text-muted-foreground">Answers use only the links you&apos;ve saved, with sources.</p>
+    <section aria-labelledby="ask-h" className="enter flex flex-col rounded-xl border bg-card/80" style={vars({ "--d": "200ms" })}>
+      <div className="border-b px-5 pt-5 pb-4">
+        <h2 id="ask-h" className="title-md">Ask your library</h2>
+        <p className="mt-1 text-sm text-muted-foreground">Answers use only the links you&apos;ve saved, with sources.</p>
       </div>
-      <div className="flex max-h-[60vh] min-h-48 flex-col gap-4 overflow-y-auto p-4" aria-live="polite">
+      <div className="flex max-h-[60vh] min-h-48 flex-col gap-4 overflow-y-auto p-5" aria-live="polite">
         {stats && !configured && (
           <p className="text-sm text-muted-foreground">
             The assistant needs an AI provider (Anthropic, OpenAI, Gemini or a local Ollama model).{" "}
@@ -173,17 +179,17 @@ function Assistant() {
         {messages.length === 0 && configured && (
           <ul className="flex flex-col gap-1.5 text-sm">
             {["Compare the AI writing tools I've saved", "Which of my tools can replace Zapier?", "Which saved websites are open source?"].map((q) => (
-              <li key={q}><button type="button" className="text-left text-muted-foreground hover:text-foreground hover:underline" onClick={() => setInput(q)}>{q}</button></li>
+              <li key={q}><button type="button" className="group py-0.5 text-left font-serif text-base italic text-muted-foreground transition-colors hover:text-foreground" onClick={() => setInput(q)}><span className="ink-link">{q}</span></button></li>
             ))}
           </ul>
         )}
         {messages.map((m, i) => (
-          <div key={i} className={cn("text-sm", m.role === "user" && "self-end rounded-lg bg-accent px-3 py-2")}>
+          <div key={i} className={cn("enter-fade text-sm", m.role === "user" && "max-w-[85%] self-end rounded-lg rounded-br-sm bg-primary px-3.5 py-2 text-primary-foreground")}>
             {m.role === "assistant" ? (
               <>
                 {m.error ? <p className="text-destructive">{m.content}</p> : <Markdown compact>{m.content}</Markdown>}
                 {m.sources && m.sources.length > 0 && (
-                  <ol className="mt-2 flex flex-col gap-1 border-l-2 pl-3 text-xs">
+                  <ol className="mt-3 flex list-decimal flex-col gap-1 pl-5 text-xs marker:text-muted-foreground">
                     {m.sources.map((s) => (
                       <li key={s.id}><Link href={`/links/${s.id}`} className="hover:underline">{s.name ?? s.domain}</Link> <span className="text-muted-foreground">{s.domain}</span></li>
                     ))}
@@ -196,7 +202,7 @@ function Assistant() {
         {busy && <p className="flex items-center gap-2 text-sm text-muted-foreground"><LoaderCircle className="size-4 animate-spin" /> Looking through your library…</p>}
         <div ref={endRef} />
       </div>
-      <form onSubmit={ask} className="flex items-end gap-2 border-t p-3">
+      <form onSubmit={ask} className="flex items-end gap-2 border-t p-3.5">
         <Textarea value={input} onChange={(e) => setInput(e.target.value)} rows={1} disabled={!configured}
           onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) ask(e); }}
           placeholder={configured ? "Ask a question" : "Set up an AI provider to ask questions"} aria-label="Question for the assistant"
@@ -211,9 +217,9 @@ export function SearchPage() {
   return (
     <>
       <PageHeader title="Search" description="Find saved links by describing the job you need done." />
-      <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_380px]">
+      <div className="grid gap-14 xl:grid-cols-[minmax(0,1fr)_380px] xl:gap-16">
         <Results />
-        <div className="xl:sticky xl:top-8 xl:self-start"><Assistant /></div>
+        <div className="xl:sticky xl:top-10 xl:self-start"><Assistant /></div>
       </div>
     </>
   );

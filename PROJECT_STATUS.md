@@ -1,6 +1,6 @@
 # Project status
 
-_Last updated: 2026-11-19_
+_Last updated: 2026-11-25_
 
 The MVP (roadmap phases 1–5 plus parts of 6–7) is implemented, tested, and running locally end to end:
 URLs pasted in the web app are rendered in Chromium, archived, analyzed by a local LLM (Ollama), indexed, and found
@@ -39,6 +39,17 @@ again through natural-language search and the assistant.
 - From phase 6: GitHub intelligence, code snippets page, availability checks (manual + periodic), AI assistant,
   smart collections, collection suggestions, duplicate merge.
 - From phase 7: JSON export/restore, Obsidian/Logseq Markdown export, Dockerfiles + compose, CI workflow, docs.
+- Design pass (2026-11-25): editorial "field survey" art direction. Instrument Serif titles paired with Instrument
+  Sans, Newsreader for reading; limestone/basalt palette with one lichen accent; paper grain; a WebGL2 contour map
+  (`components/terrain.tsx`) that bends round the cursor on sign-in and the overview masthead; spring-settling cairn
+  chart; sliding nav marker; route transitions via React `<ViewTransition>`; CSS scroll-driven reading progress and
+  link-title bar; full-screen mobile menu; reduced-motion respected everywhere.
+- Motion pass (2026-11-25): GSAP + ScrollTrigger + SplitText (`lib/gsap.ts`) and Three.js (lazy chunk). Overview: a
+  3D cairn built from the category counts (`components/cairn-3d.tsx`: spring drop-in, cursor lean, click a stone to
+  filter) held sticky beside a scroll story that lifts the stones apart and lights the category being read; count-up
+  ledger; pinned horizontal "Recently added" strip; scroll-driven tag drift. All links: category rail, sticky
+  toolbar, featured lead card, batch scroll reveals with image wipes, cursor "Open" chip. All motion sits behind
+  `prefers-reduced-motion: no-preference`.
 
 ## Pending (prioritized)
 
@@ -55,6 +66,10 @@ again through natural-language search and the assistant.
 9. Browser extension sessions UI, iOS share-sheet app (API contracts are ready).
 
 ## Known issues / limitations
+
+- Links processed by the non-Docker worker in session 1 have screenshots/thumbnails on the host filesystem, not in
+  the Docker volume, so the Docker API returns 404 for them. The UI now falls back to a category tile; re-reading
+  those links ("Re-read the page") regenerates the files.
 
 - **Local LLM speed**: with Ollama `mistral` 7B on an 8 GB GPU each link takes ~30–100 s to analyze; 100 links ≈
   1–2 hours in the background. Claude Haiku (`AI_PROVIDER=anthropic`) is much faster. `phi4` is larger than 8 GB

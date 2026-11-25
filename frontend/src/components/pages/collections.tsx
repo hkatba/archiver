@@ -1,13 +1,13 @@
 "use client";
 
-import { Plus, Sparkles, Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import useSWR from "swr";
 import { toast } from "sonner";
 import { useAddLinks } from "@/components/app-shell";
-import { ButtonLink, Empty, PageHeader } from "@/components/bits";
+import { ButtonLink, Empty, PageHeader, vars } from "@/components/bits";
 import { LinkCollection, LinkRow, useLinkActions } from "@/components/link-views";
 import { PageSkeleton } from "@/components/page-skeleton";
 import { Button } from "@/components/ui/button";
@@ -73,7 +73,7 @@ function CreateDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (o:
           <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Collection type">
             {[[false, "Manual", "You choose the links"], [true, "Smart", "Fills itself from rules"]].map(([v, label, hint]) => (
               <button key={String(v)} type="button" role="radio" aria-checked={smart === v} onClick={() => setSmart(v as boolean)}
-                className={cn("rounded-md border p-3 text-left", smart === v && "border-ring ring-1 ring-ring")}>
+                className={cn("press rounded-lg border p-3.5 text-left hover:border-foreground/30", smart === v && "border-foreground bg-card ring-1 ring-foreground")}>
                 <span className="block text-sm font-medium">{label as string}</span>
                 <span className="block text-xs text-muted-foreground">{hint as string}</span>
               </button>
@@ -88,7 +88,7 @@ function CreateDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (o:
             <Input id="c-desc" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Optional" />
           </div>
           {smart && (
-            <fieldset className="grid gap-3 rounded-md border p-3">
+            <fieldset className="grid gap-3 rounded-lg border p-4">
               <legend className="px-1 text-sm font-medium">Include links that match</legend>
               <div className="grid gap-1.5">
                 <Label htmlFor="r-q">Description of the topic</Label>
@@ -99,7 +99,7 @@ function CreateDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (o:
                 <div className="grid gap-1.5">
                   <Label htmlFor="r-cat">Category</Label>
                   <select id="r-cat" value={rules.category ?? ""} onChange={(e) => setRules({ ...rules, category: e.target.value })}
-                    className="h-9 rounded-md border bg-background px-2 text-sm">
+                    className="h-9 rounded-md border border-input bg-card/60 px-2.5 text-sm">
                     <option value="">Any</option>
                     {categories?.map((c) => <option key={c.name} value={c.name}>{c.name}</option>)}
                   </select>
@@ -150,25 +150,29 @@ export function CollectionsPage() {
           A smart collection fills itself, for example every AI tool with a free plan.
         </Empty>
       ) : (
-        <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          {data.map((c) => (
-            <li key={c.id}>
-              <Link href={`/collections/${c.id}`} className="flex h-full flex-col rounded-lg border bg-card p-4 hover:border-foreground/25">
-                <span className="flex items-center gap-2 font-medium">
-                  {c.is_smart && <Sparkles className="size-4 text-primary" aria-label="Smart collection" />}{c.name}
+        <ul className="border-b">
+          {data.map((c, i) => (
+            <li key={c.id} className="enter border-t" style={vars({ "--i": i })}>
+              <Link href={`/collections/${c.id}`}
+                className="group grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-8 gap-y-1 py-6 transition-colors duration-200 hover:bg-card/60 sm:px-3">
+                <span className="display text-[clamp(1.7rem,1.4rem+1vw,2.4rem)]"><span className="ink-link">{c.name}</span></span>
+                <span className="display row-span-2 text-[clamp(1.7rem,1.4rem+1vw,2.4rem)] tabular-nums text-muted-foreground transition-colors group-hover:text-foreground">
+                  {c.link_count}<span className="sr-only"> link{c.link_count === 1 ? "" : "s"}</span>
                 </span>
-                <span className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                <span className="line-clamp-2 text-sm text-muted-foreground">
+                  {c.is_smart && <span className="mr-2 font-medium text-foreground">Smart</span>}
                   {c.description || (c.rules ? describeRules(c.rules) : "Links you added by hand")}
                 </span>
-                <span className="mt-auto pt-3 text-sm tabular-nums text-muted-foreground">{c.link_count} link{c.link_count === 1 ? "" : "s"}</span>
               </Link>
             </li>
           ))}
           {suggestions.map((s) => (
-            <li key={s.name} className="flex flex-col rounded-lg border border-dashed p-4">
-              <span className="font-medium">{s.name}</span>
-              <span className="mt-1 text-sm text-muted-foreground">Suggested: {s.count} links share this type.</span>
-              <Button size="sm" variant="outline" className="mt-3 self-start" onClick={() => accept(s.name!, s.rules!)}>Create smart collection</Button>
+            <li key={s.name} className="enter flex flex-wrap items-center justify-between gap-4 border-t py-6 sm:px-3">
+              <span className="min-w-0">
+                <span className="display block text-[clamp(1.7rem,1.4rem+1vw,2.4rem)] text-muted-foreground">{s.name}</span>
+                <span className="mt-1 block text-sm text-muted-foreground">Suggested: {s.count} links share this type.</span>
+              </span>
+              <Button size="sm" variant="outline" onClick={() => accept(s.name!, s.rules!)}>Create smart collection</Button>
             </li>
           ))}
         </ul>
@@ -215,9 +219,9 @@ export function CollectionDetailPage() {
       ) : c.is_smart ? (
         <LinkCollection links={data.items} view="grid" />
       ) : (
-        <div className="overflow-hidden rounded-lg border bg-card">
-          {data.items.map((l) => (
-            <LinkRow key={l.id} link={l} extra={<Button size="sm" variant="ghost" onClick={() => takeOut(l.id)}>Remove</Button>} />
+        <div className="border-y">
+          {data.items.map((l, i) => (
+            <LinkRow key={l.id} link={l} index={i} extra={<Button size="sm" variant="ghost" onClick={() => takeOut(l.id)}>Remove</Button>} />
           ))}
         </div>
       )}

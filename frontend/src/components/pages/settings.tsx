@@ -26,10 +26,10 @@ interface Token { id: string; name: string; created_at: string; last_used_at: st
 
 function Card({ title, children, description }: { title: string; description?: string; children: React.ReactNode }) {
   return (
-    <section className="grid gap-4 border-t py-6 md:grid-cols-[260px_minmax(0,1fr)]">
+    <section className="grid gap-4 border-t py-8 md:grid-cols-[280px_minmax(0,1fr)] md:gap-10">
       <div>
-        <h2 className="font-medium">{title}</h2>
-        {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
+        <h2 className="title-md">{title}</h2>
+        {description && <p className="mt-2 text-sm text-muted-foreground">{description}</p>}
       </div>
       <div className="min-w-0">{children}</div>
     </section>
@@ -56,7 +56,7 @@ function Tokens() {
   return (
     <div className="grid gap-4">
       {created && (
-        <div className="rounded-md border border-primary/40 bg-primary/5 p-3 text-sm">
+        <div className="rounded-lg border border-lichen/50 bg-card p-4 text-sm">
           <p className="font-medium">Copy this token now. It won&apos;t be shown again.</p>
           <div className="mt-2 flex gap-2">
             <code className="min-w-0 flex-1 truncate rounded bg-muted px-2 py-1.5">{created}</code>
@@ -71,9 +71,9 @@ function Tokens() {
         <Button type="submit" disabled={!name.trim()}>Create token</Button>
       </form>
       {data && data.length > 0 && (
-        <ul className="divide-y rounded-md border text-sm">
+        <ul className="divide-y border-y text-sm">
           {data.map((t) => (
-            <li key={t.id} className="flex items-center justify-between gap-3 px-3 py-2">
+            <li key={t.id} className="flex items-center justify-between gap-3 py-3">
               <span className="min-w-0">
                 <span className="font-medium">{t.name}</span>
                 <span className="block text-xs text-muted-foreground">Created {ago(t.created_at)}, last used {ago(t.last_used_at)}</span>
@@ -133,10 +133,10 @@ export function SettingsPage() {
         ) : <p className="text-sm text-muted-foreground">Loading…</p>}
       </Card>
       <Card title="Appearance">
-        <div className="flex rounded-md border p-0.5 text-sm" role="radiogroup" aria-label="Theme" style={{ width: "fit-content" }}>
+        <div className="flex rounded-md border border-input bg-card/60 p-[3px] text-sm" role="radiogroup" aria-label="Theme" style={{ width: "fit-content" }}>
           {["system", "light", "dark"].map((t) => (
             <button key={t} type="button" role="radio" aria-checked={theme === t} onClick={() => setTheme(t)}
-              className={`rounded px-3 py-1 capitalize ${theme === t ? "bg-accent" : "text-muted-foreground hover:text-foreground"}`}>{t}</button>
+              className={`press h-8 rounded-[4px] px-3.5 capitalize ${theme === t ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>{t}</button>
           ))}
         </div>
       </Card>
@@ -153,7 +153,7 @@ export function SettingsPage() {
         </div>
       </Card>
       <Card title="Trash" description="Deleted links can be restored.">
-        <Link href="/links?deleted=true" className="text-sm underline">Open trash</Link>
+        <Link href="/links?deleted=true" className="text-sm underline decoration-lichen underline-offset-4 hover:decoration-foreground">Open trash</Link>
       </Card>
     </>
   );

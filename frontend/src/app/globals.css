@@ -9,7 +9,8 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-instrument);
   --font-serif: var(--font-newsreader);
-  --font-heading: var(--font-instrument);
+  --font-display: var(--font-instrument-serif);
+  --font-heading: var(--font-instrument-serif);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -31,124 +32,373 @@
   --color-lichen: var(--lichen);
   --color-warn: var(--warn);
   --color-ok: var(--ok);
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 10px;
-  --radius-xl: 14px;
-  --radius-2xl: 18px;
+  --radius-sm: 3px;
+  --radius-md: 5px;
+  --radius-lg: 7px;
+  --radius-xl: 10px;
+  --radius-2xl: 14px;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
 }
 
-/* Granite paper, slate ink, lichen accent */
+/*
+  Art direction: a field survey of the web. Limestone paper and basalt, ink type, one lichen accent
+  (the cap stone of the logo) kept for state: the active place, focus, progress, the cursor's lamp.
+  Category colours are minerals and only ever encode data.
+*/
 :root {
-  --background: #f2f3f1;
-  --foreground: #1e2624;
-  --card: #ffffff;
-  --card-foreground: #1e2624;
-  --popover: #ffffff;
-  --popover-foreground: #1e2624;
-  --primary: #3f7a5c;
-  --primary-foreground: #f6faf7;
-  --secondary: #e6e9e6;
-  --secondary-foreground: #1e2624;
-  --muted: #e9ece9;
-  --muted-foreground: #5f6b67;
-  --accent: #e3e8e4;
-  --accent-foreground: #1e2624;
-  --destructive: #b3412f;
-  --border: #dadfdc;
-  --input: #cfd5d1;
-  --ring: #3f7a5c;
-  --sidebar: #eceeeb;
-  --sidebar-border: #dadfdc;
-  --lichen: #3f7a5c;
-  --warn: #a8741a;
-  --ok: #3f7a5c;
-  --radius: 10px;
+  --background: #ece9e1;
+  --foreground: #161a19;
+  --card: #f5f3ee;
+  --card-foreground: #161a19;
+  --popover: #fbfaf7;
+  --popover-foreground: #161a19;
+  --primary: #161a19;
+  --primary-foreground: #f5f3ee;
+  --secondary: #e2ded4;
+  --secondary-foreground: #161a19;
+  --muted: #e3dfd6;
+  --muted-foreground: #5d605a;
+  --accent: #e2ded4;
+  --accent-foreground: #161a19;
+  --destructive: #a33c29;
+  --border: #d5d0c3;
+  --input: #c6c0b2;
+  --ring: #557a22;
+  --sidebar: #ece9e1;
+  --sidebar-border: #d5d0c3;
+  --lichen: #557a22;
+  --warn: #8f6210;
+  --ok: #4c7425;
+  --radius: 7px;
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.42 0 0 0 0 0.36 0 0 0 .11 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --elevation: 0 1px 0 rgb(255 255 255 / 0.6) inset, 0 28px 56px -28px rgb(38 32 18 / 0.38), 0 2px 8px -2px rgb(38 32 18 / 0.1);
+
+  /* Motion system: one language everywhere */
+  --dur-press: 140ms;
+  --dur-hover: 220ms;
+  --dur-enter: 460ms;
+  --dur-reveal: 760ms;
+  --stagger: 42ms;
+  --ease-spring: linear(0, 0.12 4%, 0.44 10%, 0.8 18%, 1.01 26%, 1.055 32%, 1.04 40%, 1.005 52%, 0.993 64%, 1);
+  color-scheme: light;
 }
 
 .dark {
-  --background: #181d1b;
-  --foreground: #e3e8e5;
-  --card: #1f2522;
-  --card-foreground: #e3e8e5;
-  --popover: #232a27;
-  --popover-foreground: #e3e8e5;
-  --primary: #79b593;
-  --primary-foreground: #102119;
-  --secondary: #2a322e;
-  --secondary-foreground: #e3e8e5;
-  --muted: #262d2a;
-  --muted-foreground: #98a49f;
-  --accent: #2c3531;
-  --accent-foreground: #e3e8e5;
-  --destructive: #e07a66;
-  --border: #303935;
-  --input: #3a4440;
-  --ring: #79b593;
-  --sidebar: #1b211e;
-  --sidebar-border: #2b3430;
-  --lichen: #79b593;
-  --warn: #d9a441;
-  --ok: #79b593;
+  --background: #0f1211;
+  --foreground: #e9e7e0;
+  --card: #151918;
+  --card-foreground: #e9e7e0;
+  --popover: #1b201e;
+  --popover-foreground: #e9e7e0;
+  --primary: #e9e7e0;
+  --primary-foreground: #0f1211;
+  --secondary: #1e2422;
+  --secondary-foreground: #e9e7e0;
+  --muted: #1a1f1d;
+  --muted-foreground: #9b9d95;
+  --accent: #1e2422;
+  --accent-foreground: #e9e7e0;
+  --destructive: #e48a72;
+  --border: #252b29;
+  --input: #333a37;
+  --ring: #c4d36c;
+  --sidebar: #0f1211;
+  --sidebar-border: #252b29;
+  --lichen: #c4d36c;
+  --warn: #d9a746;
+  --ok: #a9c46a;
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.8 0 0 0 0 0.82 0 0 0 0 0.78 0 0 0 .045 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --elevation: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 28px 60px -24px rgb(0 0 0 / 0.7), 0 2px 8px -2px rgb(0 0 0 / 0.4);
+  color-scheme: dark;
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    @apply font-sans;
+    scrollbar-color: var(--input) transparent;
+    -webkit-tap-highlight-color: transparent;
+  }
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "ss01", "cv11";
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    text-rendering: optimizeLegibility;
   }
-  html {
-    @apply font-sans;
+  /* Paper tooth: a tiled noise image, painted once, scrolls with the page (no fixed blend layer) */
+  body, .paper {
+    background-image: var(--grain);
+    background-size: 220px 220px;
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--lichen) 32%, transparent);
   }
   :focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: 2px;
   }
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  kbd {
+    font-family: var(--font-instrument), system-ui, sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.02em;
+  }
+  select {
+    background-color: var(--card);
+  }
+  code, pre, .font-mono {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Segoe UI Mono", Menlo, Consolas, monospace;
+  }
 }
 
-/* Condensed display numerals/headings: the type itself carries the hierarchy */
+/* Component classes live in the components layer so utilities can still refine them */
+@layer components {
+/* ---------- Typography ---------- */
+
+/* Display: Instrument Serif, the sibling of the UI face. Carries every title and every big numeral. */
 .display {
-  font-variation-settings: "wdth" 78;
-  letter-spacing: -0.02em;
-  font-weight: 600;
-  line-height: 1;
+  font-family: var(--font-instrument-serif), Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.012em;
+  line-height: 0.98;
+  font-feature-settings: "lnum";
 }
+.display em, .display i {
+  font-style: italic;
+}
+
+.title-xl {
+  font-family: var(--font-instrument-serif), Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(2.75rem, 1.6rem + 3.6vw, 5.25rem);
+  line-height: 0.94;
+  letter-spacing: -0.018em;
+}
+.title-md {
+  font-family: var(--font-instrument-serif), Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(1.55rem, 1.3rem + 0.7vw, 2rem);
+  line-height: 1.05;
+  letter-spacing: -0.008em;
+}
+
+/* Small labels are sentence case in the UI face, never wide-tracked capitals */
+.label {
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+}
+
+/* ---------- Links and underlines ---------- */
+
+/* An underline that draws from the left on hover and focus */
+.ink-link {
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+  transition: background-size var(--dur-hover) var(--ease-out), color var(--dur-hover) ease;
+  text-decoration: none;
+}
+.ink-link:focus-visible,
+.group:focus-visible .ink-link {
+  background-size: 100% 1px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .ink-link:hover,
+  .group:hover .ink-link {
+    background-size: 100% 1px;
+  }
+}
+
+/* ---------- Entrances (on load, never on scroll) ---------- */
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+}
+@keyframes line-up {
+  from { transform: translateY(105%); }
+}
+@keyframes fade {
+  from { opacity: 0; }
+}
+@keyframes settle {
+  from { opacity: 0; transform: translateY(-34px) rotate(var(--tilt, 0deg)); }
+  35% { opacity: 1; }
+}
+@keyframes draw-x {
+  from { transform: scaleX(0); }
+}
+
+/* Masked headline: the line rises out of its own baseline */
+.mask-line {
+  display: block;
+  overflow: clip;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+.mask-line > span {
+  display: inline-block;
+  animation: line-up var(--dur-reveal) var(--ease-out) both;
+  animation-delay: var(--d, 0ms);
+}
+
+.enter {
+  animation: rise var(--dur-enter) var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * var(--stagger) + var(--d, 0ms));
+}
+.enter-fade {
+  animation: fade var(--dur-enter) ease both;
+  animation-delay: var(--d, 0ms);
+}
+
+/* Hairline rules draw in once, from the left */
+.rule {
+  height: 1px;
+  background: var(--border);
+  transform-origin: left center;
+  animation: draw-x 900ms var(--ease-out) both;
+  animation-delay: var(--d, 120ms);
+}
+
+/* ---------- Surfaces ---------- */
+
+.elevated {
+  box-shadow: var(--elevation);
+}
+
+/* Organic stone silhouettes for the cairn chart, the category marks and the nav marker */
+.stone { border-radius: 46% 54% 42% 58% / 62% 58% 42% 38%; }
+.stone:nth-child(even) { border-radius: 55% 45% 52% 48% / 58% 62% 38% 42%; }
+
+/* A picture inside a frame: the frame holds still, the picture leans in */
+.frame {
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--muted);
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--foreground) 9%, transparent);
+  transition: box-shadow var(--dur-hover) var(--ease-out);
+}
+.frame > img {
+  transition: transform 700ms var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .group:hover .frame {
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--foreground) 16%, transparent), 0 18px 30px -22px rgb(30 26 16 / 0.45);
+  }
+  .group:hover .frame > img {
+    transform: scale(1.03);
+  }
+  /* `translate`, not `transform`, so it composes with entrance keyframes */
+  .lift {
+    transition: translate var(--dur-hover) var(--ease-out);
+  }
+  .lift:hover {
+    translate: 0 -2px;
+  }
+}
+
+/* Pressable things answer the press */
+.press {
+  transition: scale var(--dur-press) var(--ease-out), background-color var(--dur-hover) ease, color var(--dur-hover) ease;
+}
+.press:active {
+  scale: 0.96;
+}
+
+/* ---------- Reader ---------- */
 
 .reader {
   font-family: var(--font-newsreader), Georgia, serif;
-  font-size: 1.075rem;
+  font-size: 1.125rem;
   line-height: 1.7;
-  max-width: 68ch;
+  max-width: 66ch;
+  font-optical-sizing: auto;
 }
 .reader h1, .reader h2, .reader h3, .reader h4 {
-  font-family: var(--font-instrument), system-ui, sans-serif;
-  font-weight: 600;
-  line-height: 1.25;
-  margin: 1.6em 0 0.5em;
+  font-family: var(--font-instrument-serif), Georgia, serif;
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.008em;
+  margin: 1.7em 0 0.45em;
 }
-.reader h1 { font-size: 1.5rem; }
-.reader h2 { font-size: 1.25rem; }
-.reader h3 { font-size: 1.08rem; }
+.reader h1 { font-size: 2rem; }
+.reader h2 { font-size: 1.65rem; }
+.reader h3 { font-size: 1.3rem; }
+.reader h4 { font-size: 1.1rem; }
 .reader p, .reader ul, .reader ol, .reader pre, .reader table, .reader blockquote { margin: 0 0 1em; }
 .reader ul { list-style: disc; padding-left: 1.4em; }
 .reader ol { list-style: decimal; padding-left: 1.4em; }
-.reader a { color: var(--lichen); text-decoration: underline; text-underline-offset: 2px; }
-.reader blockquote { border-left: 3px solid var(--border); padding-left: 1em; color: var(--muted-foreground); }
-.reader code { font-size: 0.88em; background: var(--muted); padding: 0.1em 0.3em; border-radius: 4px; }
-.reader pre { background: var(--muted); padding: 0.9em 1em; border-radius: 6px; overflow-x: auto; font-size: 0.85rem; line-height: 1.5; }
+.reader li::marker { color: var(--muted-foreground); }
+.reader a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklab, var(--lichen) 70%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: text-decoration-color var(--dur-hover) ease;
+}
+.reader a:hover { text-decoration-color: currentColor; }
+.reader blockquote { border-left: 1px solid var(--foreground); padding-left: 1em; font-style: italic; color: var(--muted-foreground); }
+.reader code { font-size: 0.84em; background: var(--muted); padding: 0.1em 0.3em; border-radius: 3px; }
+.reader pre { background: var(--card); box-shadow: 0 0 0 1px var(--border); padding: 0.9em 1em; border-radius: 5px; overflow-x: auto; font-size: 0.82rem; line-height: 1.55; }
 .reader pre code { background: none; padding: 0; }
+.reader hr { border: 0; height: 1px; background: var(--border); margin: 2em 0; }
 .reader-compact { font-family: var(--font-instrument), system-ui, sans-serif; font-size: 0.875rem; line-height: 1.6; }
 .reader-compact p, .reader-compact ul, .reader-compact ol { margin-bottom: 0.6em; }
 .reader table { border-collapse: collapse; font-size: 0.92rem; display: block; overflow-x: auto; }
 .reader th, .reader td { border: 1px solid var(--border); padding: 0.35em 0.6em; text-align: left; }
+}
 
-/* Organic stone silhouettes for the cairn chart and the logo */
-.stone { border-radius: 46% 54% 42% 58% / 62% 58% 42% 38%; }
-.stone:nth-child(even) { border-radius: 55% 45% 52% 48% / 58% 62% 38% 42%; }
+/* ---------- Scroll-linked (native, compositor-driven, opt-in) ---------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: scroll()) {
+    /* Reader: a hairline of lichen measures how far you have read */
+    .read-progress {
+      animation: draw-x linear both;
+      animation-timeline: scroll(root);
+    }
+
+    /* Link detail: once the big title leaves, a slim bar carries it */
+    .title-scope { timeline-scope: --title; }
+    .title-track { view-timeline: --title block; }
+    .title-bar {
+      display: flex;
+      animation: title-bar linear both;
+      animation-timeline: --title;
+      animation-range: exit 40% exit 100%;
+    }
+    @keyframes title-bar {
+      from { opacity: 0; transform: translateY(-8px); visibility: hidden; }
+      to { opacity: 1; transform: none; visibility: visible; }
+    }
+  }
+}
+
+/* ---------- Route transitions (React <ViewTransition>) ---------- */
+
+::view-transition-old(.page-exit) {
+  animation: 140ms var(--ease-out) both fade reverse;
+}
+::view-transition-new(.page-enter) {
+  animation: 420ms var(--ease-out) 60ms both rise;
+}
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) {
+    animation: none !important;
+  }
 }
